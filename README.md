@@ -1,1 +1,1 @@
-# API-REST-utilizando-AdonisJS-para-controle-de-Alunos
+# Repositório criado para auxiliar os estudos dos colaboradores Bruno Vital e Nathan Bezerra
