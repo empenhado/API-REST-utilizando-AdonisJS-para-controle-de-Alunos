@@ -1,28 +1,21 @@
-import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
-import type { HasMany } from '@adonisjs/lucid/types/relations'
-import { DateTime } from 'luxon'
-import Estudante from '#models/estudante'
+import { UserSchema } from '#database/schema'
+import hash from '@adonisjs/core/services/hash'
+import { compose } from '@adonisjs/core/helpers'
+import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
+import { type AccessToken, DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 
-export default class Curso extends BaseModel {
-  static table = 'cursos'
+export default class User extends compose(UserSchema, withAuthFinder(hash)) {
+  static accessTokens = DbAccessTokensProvider.forModel(User)
 
-  @column({ isPrimary: true })
-  declare id: number
+  declare currentAccessToken?: AccessToken
 
-  @column()
-  declare nome: string
+  get initials() {
+    const [first, last] = this.nome ? this.nome.split(' ') : this.email.split('@')
 
-  @column()
-  declare descricao: string | null
+    if (first && last) {
+      return `${first.charAt(0)}${last.charAt(0)}`.toUpperCase()
+    }
 
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
-
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime | null
-
-  @hasMany(() => Estudante, {
-    foreignKey: 'cursoId',
-  })
-  declare estudantes: HasMany<typeof Estudante>
+    return `${first.slice(0, 2)}`.toUpperCase()
+  }
 }

@@ -1,53 +1,37 @@
-/*
-|--------------------------------------------------------------------------
-| Routes file
-|--------------------------------------------------------------------------
-|
-| The routes file is used for defining the HTTP routes.
-|
-*/
-// start/routes.ts
 import router from '@adonisjs/core/services/router'
-import swaggerConfig from '#config/swagger'
-import AutoSwagger from 'adonis-autoswagger'
-import { middleware } from '#start/kernel'
-import { controllers } from '#generated/controllers'
+import { middleware } from './kernel.js'
 
-// Endpoint que gera o arquivo de especificação OpenAPI (YAML)
-router.get('/swagger', async () => {
-  return AutoSwagger.default.docs(router.toJSON(), swaggerConfig)
-})
+const AuthController = () => import('#controllers/auth_controller')
+const CursosController = () => import('#controllers/cursos_controller')
+const EstudantesController = () => import('#controllers/estudantes_controller')
+const NotasController = () => import('#controllers/notas_controller')
 
-// Endpoint que renderiza a interface visual para testes
-router.get('/docs', async () => {
-  return AutoSwagger.default.ui('/swagger', swaggerConfig)
-
-  // Dica: Se preferir uma interface mais moderna que o Swagger clássico,
-  // você pode trocar a linha acima por:
-  // return AutoSwagger.default.scalar('/swagger')
-})
-
-router.get('/', () => {
-  return { hello: 'world' }
-})
+router.post('/register', [AuthController, 'register'])
+router.post('/login', [AuthController, 'login'])
 
 router
   .group(() => {
-    router
-      .group(() => {
-        router.post('signup', [controllers.NewAccount, 'store'])
-        router.post('login', [controllers.AccessTokens, 'store'])
-      })
-      .prefix('auth')
-      .as('auth')
+    router.get('/cursos', [CursosController, 'index'])
+    router.post('/cursos', [CursosController, 'store'])
+    router.get('/cursos/:id', [CursosController, 'show'])
+    router.put('/cursos/:id', [CursosController, 'update'])
+    router.delete('/cursos/:id', [CursosController, 'destroy'])
 
-    router
-      .group(() => {
-        router.get('profile', [controllers.Profile, 'show'])
-        router.post('logout', [controllers.AccessTokens, 'destroy'])
-      })
-      .prefix('account')
-      .as('profile')
-      .use(middleware.auth())
+    router.get('/estudantes', [EstudantesController, 'index'])
+    router.post('/estudantes', [EstudantesController, 'store'])
+
+    router.get('/estudantes/aprovados', [EstudantesController, 'aprovados'])
+    router.get('/estudantes/reprovados', [EstudantesController, 'reprovados'])
+    router.get('/estudantes/:id/media', [EstudantesController, 'media'])
+
+    router.get('/estudantes/:id', [EstudantesController, 'show'])
+    router.put('/estudantes/:id', [EstudantesController, 'update'])
+    router.delete('/estudantes/:id', [EstudantesController, 'destroy'])
+
+    router.get('/notas', [NotasController, 'index'])
+    router.post('/notas', [NotasController, 'store'])
+    router.get('/notas/:id', [NotasController, 'show'])
+    router.put('/notas/:id', [NotasController, 'update'])
+    router.delete('/notas/:id', [NotasController, 'destroy'])
   })
-  .prefix('/api/v1')
+  .use(middleware.auth())
