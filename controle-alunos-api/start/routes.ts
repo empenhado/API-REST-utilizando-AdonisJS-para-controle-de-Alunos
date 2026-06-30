@@ -1,5 +1,18 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+import AutoSwagger from 'adonis-autoswagger'
+import swagger from '../config/swagger.js'
+
+
+// Retorna o spec em JSON/YAML
+router.get('/swagger', async () => {
+  return AutoSwagger.default.docs(router.toJSON(), swagger)
+})
+
+// Interface visual (Swagger UI)
+router.get('/docs', async () => {
+  return AutoSwagger.default.ui('/swagger', swagger)
+})
 
 const AuthController = () => import('#controllers/auth_controller')
 const CursosController = () => import('#controllers/cursos_controller')

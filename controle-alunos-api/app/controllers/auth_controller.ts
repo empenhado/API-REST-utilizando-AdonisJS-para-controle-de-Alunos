@@ -3,6 +3,14 @@ import User from '#models/user'
 import { registerValidator, loginValidator } from '#validators/user'
 
 export default class AuthController {
+  /**
+   * @register
+   * @summary Cadastra um novo usuário
+   * @tag Autenticação
+   * @requestBody {"nome": "Bruno Vital", "email": "bruno@exemplo.com", "password": "senha123"}
+   * @responseBody 201 - {"message": "Usuário cadastrado com sucesso", "user": {}}
+   * @responseBody 400 - {"error": "Este e-mail já está cadastrado"}
+   */
   async register({ request, response }: HttpContext) {
     const data = await request.validateUsing(registerValidator)
 
@@ -26,6 +34,13 @@ export default class AuthController {
     }
   }
 
+  /**
+   * @login
+   * @summary Realiza login e retorna o token de acesso
+   * @tag Autenticação
+   * @requestBody {"email": "admin@ifma.edu.br", "password": "admin123"}
+   * @responseBody 200 - {"message": "Login realizado com sucesso", "user": {}, "token": {}}
+   */
   async login({ request }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)
 

@@ -25,13 +25,6 @@ export type ScannedRoutes = {
     'notas.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'notas.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
   }
-  POST: {
-    'auth.register': { paramsTuple?: []; params?: {} }
-    'auth.login': { paramsTuple?: []; params?: {} }
-    'cursos.store': { paramsTuple?: []; params?: {} }
-    'estudantes.store': { paramsTuple?: []; params?: {} }
-    'notas.store': { paramsTuple?: []; params?: {} }
-  }
   GET: {
     'cursos.index': { paramsTuple?: []; params?: {} }
     'cursos.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -53,6 +46,13 @@ export type ScannedRoutes = {
     'estudantes.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'notas.index': { paramsTuple?: []; params?: {} }
     'notas.show': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
+  }
+  POST: {
+    'auth.register': { paramsTuple?: []; params?: {} }
+    'auth.login': { paramsTuple?: []; params?: {} }
+    'cursos.store': { paramsTuple?: []; params?: {} }
+    'estudantes.store': { paramsTuple?: []; params?: {} }
+    'notas.store': { paramsTuple?: []; params?: {} }
   }
   PUT: {
     'cursos.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

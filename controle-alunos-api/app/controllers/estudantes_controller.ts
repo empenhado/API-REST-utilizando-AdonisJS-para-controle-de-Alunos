@@ -3,12 +3,26 @@ import Estudante from '#models/estudante'
 import { criarEstudanteValidator, atualizarEstudanteValidator } from '#validators/estudante'
 
 export default class EstudantesController {
+  /**
+   * @index
+   * @summary Lista todos os estudantes (com curso e notas)
+   * @tag Estudantes
+   * @responseBody 200 - <Estudante[]>
+   */
   async index() {
     const estudantes = await Estudante.query().preload('curso').preload('notas')
 
     return estudantes
   }
 
+  /**
+   * @store
+   * @summary Cadastra um novo estudante
+   * @tag Estudantes
+   * @requestBody {"nome": "Bruno Vital", "matricula": "2024001", "curso_id": 1}
+   * @responseBody 201 - {"message": "Estudante cadastrado com sucesso", "estudante": {}}
+   * @responseBody 400 - {"error": "Esta matrícula já está cadastrada"}
+   */
   async store({ request, response }: HttpContext) {
     const data = await request.validateUsing(criarEstudanteValidator)
 
@@ -32,6 +46,14 @@ export default class EstudantesController {
     }
   }
 
+  /**
+   * @show
+   * @summary Exibe um estudante específico (com curso e notas)
+   * @tag Estudantes
+   * @paramPath id - ID do estudante - @type(number) @required
+   * @responseBody 200 - <Estudante>
+   * @responseBody 404 - {"error": "Estudante não encontrado"}
+   */
   async show({ params, response }: HttpContext) {
     const estudante = await Estudante.query()
       .where('id', Number(params.id))
@@ -48,6 +70,15 @@ export default class EstudantesController {
     return estudante
   }
 
+  /**
+   * @update
+   * @summary Atualiza um estudante específico
+   * @tag Estudantes
+   * @paramPath id - ID do estudante - @type(number) @required
+   * @requestBody {"nome": "Bruno Vital", "matricula": "2024001", "curso_id": 1}
+   * @responseBody 200 - {"message": "Estudante atualizado com sucesso", "estudante": {}}
+   * @responseBody 404 - {"error": "Estudante não encontrado"}
+   */
   async update({ params, request, response }: HttpContext) {
     const estudante = await Estudante.find(params.id)
 
@@ -73,6 +104,14 @@ export default class EstudantesController {
     }
   }
 
+  /**
+   * @destroy
+   * @summary Remove um estudante
+   * @tag Estudantes
+   * @paramPath id - ID do estudante - @type(number) @required
+   * @responseBody 204 - {}
+   * @responseBody 404 - {"error": "Estudante não encontrado"}
+   */
   async destroy({ params, response }: HttpContext) {
     const estudante = await Estudante.find(params.id)
 
@@ -87,6 +126,14 @@ export default class EstudantesController {
     return response.status(204).send(null)
   }
 
+  /**
+   * @media
+   * @summary Calcula a média das notas de um estudante
+   * @tag Estudantes
+   * @paramPath id - ID do estudante - @type(number) @required
+   * @responseBody 200 - {"estudante": "Bruno Vital", "media": 8.5, "situacao": "Aprovado"}
+   * @responseBody 404 - {"error": "Estudante não encontrado"}
+   */
   async media({ params, response }: HttpContext) {
     const estudante = await Estudante.find(params.id)
 
@@ -111,6 +158,12 @@ export default class EstudantesController {
     }
   }
 
+  /**
+   * @aprovados
+   * @summary Lista estudantes com média >= 7
+   * @tag Relatórios
+   * @responseBody 200 - <Estudante[]>
+   */
   async aprovados() {
     const estudantes = await Estudante.query().preload('notas')
 
@@ -127,6 +180,12 @@ export default class EstudantesController {
     return estudantesAprovados
   }
 
+  /**
+   * @reprovados
+   * @summary Lista estudantes com média < 7
+   * @tag Relatórios
+   * @responseBody 200 - <Estudante[]>
+   */
   async reprovados() {
     const estudantes = await Estudante.query().preload('notas')
 
