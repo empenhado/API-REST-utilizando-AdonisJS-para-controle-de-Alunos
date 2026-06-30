@@ -1,0 +1,22 @@
+info:
+  name: cursos
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:3333/cursos
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Sistemas de Informação",
+        "descricao": "Curso de tecnologia"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

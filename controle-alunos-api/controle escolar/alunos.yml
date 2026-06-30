@@ -1,0 +1,23 @@
+info:
+  name: alunos
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: http://localhost:3333/estudantes
+  body:
+    type: json
+    data: |-
+      {
+        "nome": "Oliel",
+        "matricula": "2026010",
+        "curso_id": 3
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -3,19 +3,31 @@ import type { routes } from './index.ts'
 
 export interface ApiDefinition {
   auth: {
-    newAccount: {
-      store: typeof routes['auth.new_account.store']
-    }
-    accessTokens: {
-      store: typeof routes['auth.access_tokens.store']
-    }
+    register: typeof routes['auth.register']
+    login: typeof routes['auth.login']
   }
-  profile: {
-    profile: {
-      show: typeof routes['profile.profile.show']
-    }
-    accessTokens: {
-      destroy: typeof routes['profile.access_tokens.destroy']
-    }
+  cursos: {
+    index: typeof routes['cursos.index']
+    store: typeof routes['cursos.store']
+    show: typeof routes['cursos.show']
+    update: typeof routes['cursos.update']
+    destroy: typeof routes['cursos.destroy']
+  }
+  estudantes: {
+    index: typeof routes['estudantes.index']
+    store: typeof routes['estudantes.store']
+    aprovados: typeof routes['estudantes.aprovados']
+    reprovados: typeof routes['estudantes.reprovados']
+    media: typeof routes['estudantes.media']
+    show: typeof routes['estudantes.show']
+    update: typeof routes['estudantes.update']
+    destroy: typeof routes['estudantes.destroy']
+  }
+  notas: {
+    index: typeof routes['notas.index']
+    store: typeof routes['notas.store']
+    show: typeof routes['notas.show']
+    update: typeof routes['notas.update']
+    destroy: typeof routes['notas.destroy']
   }
 }

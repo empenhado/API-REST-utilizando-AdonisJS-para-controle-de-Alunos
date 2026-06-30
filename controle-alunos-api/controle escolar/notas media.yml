@@ -1,0 +1,22 @@
+info:
+  name: notas media
+  type: http
+  seq: 10
+
+http:
+  method: POST
+  url: http://localhost:3333/notas
+  body:
+    type: json
+    data: |-
+      {
+        "valor": 4,
+        "estudante_id": 5
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

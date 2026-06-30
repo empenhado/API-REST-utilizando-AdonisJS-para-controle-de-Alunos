@@ -6,29 +6,125 @@ import type { ApiDefinition } from './tree.d.ts'
 const placeholder: any = {}
 
 const routes = {
-  'auth.new_account.store': {
+  'auth.register': {
     methods: ["POST"],
-    pattern: '/api/v1/auth/signup',
-    tokens: [{"old":"/api/v1/auth/signup","type":0,"val":"api","end":""},{"old":"/api/v1/auth/signup","type":0,"val":"v1","end":""},{"old":"/api/v1/auth/signup","type":0,"val":"auth","end":""},{"old":"/api/v1/auth/signup","type":0,"val":"signup","end":""}],
-    types: placeholder as Registry['auth.new_account.store']['types'],
+    pattern: '/register',
+    tokens: [{"old":"/register","type":0,"val":"register","end":""}],
+    types: placeholder as Registry['auth.register']['types'],
   },
-  'auth.access_tokens.store': {
+  'auth.login': {
     methods: ["POST"],
-    pattern: '/api/v1/auth/login',
-    tokens: [{"old":"/api/v1/auth/login","type":0,"val":"api","end":""},{"old":"/api/v1/auth/login","type":0,"val":"v1","end":""},{"old":"/api/v1/auth/login","type":0,"val":"auth","end":""},{"old":"/api/v1/auth/login","type":0,"val":"login","end":""}],
-    types: placeholder as Registry['auth.access_tokens.store']['types'],
+    pattern: '/login',
+    tokens: [{"old":"/login","type":0,"val":"login","end":""}],
+    types: placeholder as Registry['auth.login']['types'],
   },
-  'profile.profile.show': {
+  'cursos.index': {
     methods: ["GET","HEAD"],
-    pattern: '/api/v1/account/profile',
-    tokens: [{"old":"/api/v1/account/profile","type":0,"val":"api","end":""},{"old":"/api/v1/account/profile","type":0,"val":"v1","end":""},{"old":"/api/v1/account/profile","type":0,"val":"account","end":""},{"old":"/api/v1/account/profile","type":0,"val":"profile","end":""}],
-    types: placeholder as Registry['profile.profile.show']['types'],
+    pattern: '/cursos',
+    tokens: [{"old":"/cursos","type":0,"val":"cursos","end":""}],
+    types: placeholder as Registry['cursos.index']['types'],
   },
-  'profile.access_tokens.destroy': {
+  'cursos.store': {
     methods: ["POST"],
-    pattern: '/api/v1/account/logout',
-    tokens: [{"old":"/api/v1/account/logout","type":0,"val":"api","end":""},{"old":"/api/v1/account/logout","type":0,"val":"v1","end":""},{"old":"/api/v1/account/logout","type":0,"val":"account","end":""},{"old":"/api/v1/account/logout","type":0,"val":"logout","end":""}],
-    types: placeholder as Registry['profile.access_tokens.destroy']['types'],
+    pattern: '/cursos',
+    tokens: [{"old":"/cursos","type":0,"val":"cursos","end":""}],
+    types: placeholder as Registry['cursos.store']['types'],
+  },
+  'cursos.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/cursos/:id',
+    tokens: [{"old":"/cursos/:id","type":0,"val":"cursos","end":""},{"old":"/cursos/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['cursos.show']['types'],
+  },
+  'cursos.update': {
+    methods: ["PUT"],
+    pattern: '/cursos/:id',
+    tokens: [{"old":"/cursos/:id","type":0,"val":"cursos","end":""},{"old":"/cursos/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['cursos.update']['types'],
+  },
+  'cursos.destroy': {
+    methods: ["DELETE"],
+    pattern: '/cursos/:id',
+    tokens: [{"old":"/cursos/:id","type":0,"val":"cursos","end":""},{"old":"/cursos/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['cursos.destroy']['types'],
+  },
+  'estudantes.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/estudantes',
+    tokens: [{"old":"/estudantes","type":0,"val":"estudantes","end":""}],
+    types: placeholder as Registry['estudantes.index']['types'],
+  },
+  'estudantes.store': {
+    methods: ["POST"],
+    pattern: '/estudantes',
+    tokens: [{"old":"/estudantes","type":0,"val":"estudantes","end":""}],
+    types: placeholder as Registry['estudantes.store']['types'],
+  },
+  'estudantes.aprovados': {
+    methods: ["GET","HEAD"],
+    pattern: '/estudantes/aprovados',
+    tokens: [{"old":"/estudantes/aprovados","type":0,"val":"estudantes","end":""},{"old":"/estudantes/aprovados","type":0,"val":"aprovados","end":""}],
+    types: placeholder as Registry['estudantes.aprovados']['types'],
+  },
+  'estudantes.reprovados': {
+    methods: ["GET","HEAD"],
+    pattern: '/estudantes/reprovados',
+    tokens: [{"old":"/estudantes/reprovados","type":0,"val":"estudantes","end":""},{"old":"/estudantes/reprovados","type":0,"val":"reprovados","end":""}],
+    types: placeholder as Registry['estudantes.reprovados']['types'],
+  },
+  'estudantes.media': {
+    methods: ["GET","HEAD"],
+    pattern: '/estudantes/:id/media',
+    tokens: [{"old":"/estudantes/:id/media","type":0,"val":"estudantes","end":""},{"old":"/estudantes/:id/media","type":1,"val":"id","end":""},{"old":"/estudantes/:id/media","type":0,"val":"media","end":""}],
+    types: placeholder as Registry['estudantes.media']['types'],
+  },
+  'estudantes.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/estudantes/:id',
+    tokens: [{"old":"/estudantes/:id","type":0,"val":"estudantes","end":""},{"old":"/estudantes/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['estudantes.show']['types'],
+  },
+  'estudantes.update': {
+    methods: ["PUT"],
+    pattern: '/estudantes/:id',
+    tokens: [{"old":"/estudantes/:id","type":0,"val":"estudantes","end":""},{"old":"/estudantes/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['estudantes.update']['types'],
+  },
+  'estudantes.destroy': {
+    methods: ["DELETE"],
+    pattern: '/estudantes/:id',
+    tokens: [{"old":"/estudantes/:id","type":0,"val":"estudantes","end":""},{"old":"/estudantes/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['estudantes.destroy']['types'],
+  },
+  'notas.index': {
+    methods: ["GET","HEAD"],
+    pattern: '/notas',
+    tokens: [{"old":"/notas","type":0,"val":"notas","end":""}],
+    types: placeholder as Registry['notas.index']['types'],
+  },
+  'notas.store': {
+    methods: ["POST"],
+    pattern: '/notas',
+    tokens: [{"old":"/notas","type":0,"val":"notas","end":""}],
+    types: placeholder as Registry['notas.store']['types'],
+  },
+  'notas.show': {
+    methods: ["GET","HEAD"],
+    pattern: '/notas/:id',
+    tokens: [{"old":"/notas/:id","type":0,"val":"notas","end":""},{"old":"/notas/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['notas.show']['types'],
+  },
+  'notas.update': {
+    methods: ["PUT"],
+    pattern: '/notas/:id',
+    tokens: [{"old":"/notas/:id","type":0,"val":"notas","end":""},{"old":"/notas/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['notas.update']['types'],
+  },
+  'notas.destroy': {
+    methods: ["DELETE"],
+    pattern: '/notas/:id',
+    tokens: [{"old":"/notas/:id","type":0,"val":"notas","end":""},{"old":"/notas/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['notas.destroy']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 
