@@ -3,6 +3,29 @@
 Esta é uma API REST desenvolvida com o framework **AdonisJS** para o gerenciamento de cursos, alunos e notas. O projeto atende a todos os requisitos acadêmicos solicitados, incluindo persistência em banco de dados relacional, autenticação via middleware e regras de negócio estruturadas.
 
 ---
+# Entidades 
+• Curso
+• Aluno
+• Nota
+
+# Regras de negócio
+• Cadastrar cursos e alunos.
+• Cada aluno pertence a um curso.
+• Registrar notas de 0 a 10.
+• Calcular média do aluno.
+• Listar aprovados e reprovados.
+
+# Relacionamentos
+Curso 1:N Alunos | Aluno 1:N Notas
+
+# Requisitos obrigatórios
+• Utilizar Migrations.
+• Utilizar Models.
+• Implementar Controllers para CRUD.
+• Implementar Middleware de autenticação.
+• Utilizar relacionamentos do Lucid ORM.
+• Utilizar PostgreSQL.
+• Organizar rotas seguindo o padrão do AdonisJS.
 
 ## Tecnologias Utilizadas
 
