@@ -11,12 +11,12 @@ Esta é uma API REST desenvolvida com o framework **AdonisJS** para o gerenciame
 
 # Regras de negócio
 
-* Cadastrar cursos e estudantes.
-* Cada estudante pertence a um curso.
-* Cada estudante possui uma matrícula única.
-* Registrar notas de 0 a 10.
-* Calcular média do estudante.
-* Listar estudantes aprovados e reprovados.
+* Cadastrar cursos e estudantes. (/app)
+* Cada estudante pertence a um curso. (/models)
+* Cada estudante possui uma matrícula única. (/controllers)
+* Registrar notas de 0 a 10. (/validator)
+* Calcular média do estudante. (/app)
+* Listar estudantes aprovados e reprovados. (/app)
 
 # Relacionamentos
 
