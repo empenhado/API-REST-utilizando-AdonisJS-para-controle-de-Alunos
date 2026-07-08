@@ -175,7 +175,11 @@ export default class EstudantesController {
       return soma + Number(nota.valor)
     }, 0)
 
-    const media = notas.length > 0 ? total / notas.length : 0
+    // O cálculo principal acontece aqui:
+    const mediaCalculada = notas.length > 0 ? total / notas.length : 0
+    
+    // Formata para 1 casa decimal (ou mude para 2, se preferir)
+    const media = Number(mediaCalculada.toFixed(2))
 
     return {
       estudante: estudante.nome,
