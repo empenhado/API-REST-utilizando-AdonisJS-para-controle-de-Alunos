@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Estudante from '#models/estudante'
+import Curso from '#models/curso' // Importação adicionada para validar a chave estrangeira
 import { criarEstudanteValidator, atualizarEstudanteValidator } from '#validators/estudante'
 
 export default class EstudantesController {
@@ -21,7 +22,8 @@ export default class EstudantesController {
    * @tag Estudantes
    * @requestBody {"nome": "Bruno Vital", "matricula": "2024001", "curso_id": 1}
    * @responseBody 201 - {"message": "Estudante cadastrado com sucesso", "estudante": {}}
-   * @responseBody 400 - {"error": "Esta matrícula já está cadastrada"}
+   * @responseBody 400 - {"errors": [{"message": "Esta matrícula já está cadastrada"}]}
+   * @responseBody 404 - {"errors": [{"message": "Curso não encontrado com o ID fornecido."}]}
    */
   async store({ request, response }: HttpContext) {
     const data = await request.validateUsing(criarEstudanteValidator)
@@ -30,19 +32,31 @@ export default class EstudantesController {
 
     if (estudanteExists) {
       return response.status(400).json({
-        error: 'Esta matrícula já está cadastrada',
+        errors: [{ message: 'Esta matrícula já está cadastrada' }],
       })
     }
 
-    const estudante = await Estudante.create({
-      nome: data.nome,
-      matricula: data.matricula,
-      cursoId: data.curso_id,
-    })
+    try {
+      // Valida se o curso existe antes de tentar cadastrar o aluno
+      await Curso.findOrFail(data.curso_id)
 
-    return {
-      message: 'Estudante cadastrado com sucesso',
-      estudante,
+      const estudante = await Estudante.create({
+        nome: data.nome,
+        matricula: data.matricula,
+        cursoId: data.curso_id,
+      })
+
+      return response.status(201).json({
+        message: 'Estudante cadastrado com sucesso',
+        estudante,
+      })
+    } catch (error: any) {
+      if (error.code === 'E_ROW_NOT_FOUND') {
+        return response.status(404).json({
+          errors: [{ message: 'Curso não encontrado com o ID fornecido.' }],
+        })
+      }
+      return response.status(500).json({ message: 'Erro interno no servidor' })
     }
   }
 
@@ -52,7 +66,7 @@ export default class EstudantesController {
    * @tag Estudantes
    * @paramPath id - ID do estudante - @type(number) @required
    * @responseBody 200 - <Estudante>
-   * @responseBody 404 - {"error": "Estudante não encontrado"}
+   * @responseBody 404 - {"errors": [{"message": "Estudante não encontrado"}]}
    */
   async show({ params, response }: HttpContext) {
     const estudante = await Estudante.query()
@@ -63,7 +77,7 @@ export default class EstudantesController {
 
     if (!estudante) {
       return response.status(404).json({
-        error: 'Estudante não encontrado',
+        errors: [{ message: 'Estudante não encontrado' }],
       })
     }
 
@@ -77,30 +91,42 @@ export default class EstudantesController {
    * @paramPath id - ID do estudante - @type(number) @required
    * @requestBody {"nome": "Bruno Vital", "matricula": "2024001", "curso_id": 1}
    * @responseBody 200 - {"message": "Estudante atualizado com sucesso", "estudante": {}}
-   * @responseBody 404 - {"error": "Estudante não encontrado"}
+   * @responseBody 404 - {"errors": [{"message": "Estudante ou Curso não encontrado"}]}
    */
   async update({ params, request, response }: HttpContext) {
     const estudante = await Estudante.find(params.id)
 
     if (!estudante) {
       return response.status(404).json({
-        error: 'Estudante não encontrado',
+        errors: [{ message: 'Estudante não encontrado' }],
       })
     }
 
     const data = await request.validateUsing(atualizarEstudanteValidator)
 
-    estudante.merge({
-      nome: data.nome,
-      matricula: data.matricula,
-      cursoId: data.curso_id,
-    })
+    try {
+      // Valida se o novo curso existe
+      await Curso.findOrFail(data.curso_id)
 
-    await estudante.save()
+      estudante.merge({
+        nome: data.nome,
+        matricula: data.matricula,
+        cursoId: data.curso_id,
+      })
 
-    return {
-      message: 'Estudante atualizado com sucesso',
-      estudante,
+      await estudante.save()
+
+      return {
+        message: 'Estudante atualizado com sucesso',
+        estudante,
+      }
+    } catch (error: any) {
+      if (error.code === 'E_ROW_NOT_FOUND') {
+        return response.status(404).json({
+          errors: [{ message: 'Curso não encontrado com o ID fornecido.' }],
+        })
+      }
+      return response.status(500).json({ message: 'Erro interno no servidor' })
     }
   }
 
@@ -110,14 +136,14 @@ export default class EstudantesController {
    * @tag Estudantes
    * @paramPath id - ID do estudante - @type(number) @required
    * @responseBody 204 - {}
-   * @responseBody 404 - {"error": "Estudante não encontrado"}
+   * @responseBody 404 - {"errors": [{"message": "Estudante não encontrado"}]}
    */
   async destroy({ params, response }: HttpContext) {
     const estudante = await Estudante.find(params.id)
 
     if (!estudante) {
       return response.status(404).json({
-        error: 'Estudante não encontrado',
+        errors: [{ message: 'Estudante não encontrado' }],
       })
     }
 
@@ -132,14 +158,14 @@ export default class EstudantesController {
    * @tag Estudantes
    * @paramPath id - ID do estudante - @type(number) @required
    * @responseBody 200 - {"estudante": "Bruno Vital", "media": 8.5, "situacao": "Aprovado"}
-   * @responseBody 404 - {"error": "Estudante não encontrado"}
+   * @responseBody 404 - {"errors": [{"message": "Estudante não encontrado"}]}
    */
   async media({ params, response }: HttpContext) {
     const estudante = await Estudante.find(params.id)
 
     if (!estudante) {
       return response.status(404).json({
-        error: 'Estudante não encontrado',
+        errors: [{ message: 'Estudante não encontrado' }],
       })
     }
 
@@ -158,12 +184,7 @@ export default class EstudantesController {
     }
   }
 
-  /**
-   * @aprovados
-   * @summary Lista estudantes com média >= 7
-   * @tag Relatórios
-   * @responseBody 200 - <Estudante[]>
-   */
+  // Os métodos aprovados() e reprovados() não precisam de try/catch pois são apenas de leitura e não buscam por IDs específicos.
   async aprovados() {
     const estudantes = await Estudante.query().preload('notas')
 
@@ -180,12 +201,6 @@ export default class EstudantesController {
     return estudantesAprovados
   }
 
-  /**
-   * @reprovados
-   * @summary Lista estudantes com média < 7
-   * @tag Relatórios
-   * @responseBody 200 - <Estudante[]>
-   */
   async reprovados() {
     const estudantes = await Estudante.query().preload('notas')
 

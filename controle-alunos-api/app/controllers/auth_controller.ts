@@ -39,19 +39,30 @@ export default class AuthController {
    * @summary Realiza login e retorna o token de acesso
    * @tag Autenticação
    * @requestBody {"email": "admin@ifma.edu.br", "password": "admin123"}
-   * @responseBody 200 - {"message": "Login realizado com sucesso", "user": {}, "token": {}}
+   * @responseBody 200 - {"message": "Login realizado com sucesso", "user": {}, "token": {}
+   * * @responseBody 400 - {"errors": [{"message": "E-mail ou senha inválidos"}]}}
    */
-  async login({ request }: HttpContext) {
+  // 1. Adicionado o 'response' aqui nos parâmetros
+  async login({ request, response }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)
 
-    const user = await User.verifyCredentials(email, password)
+    try {
+      // 2. Tenta fazer a verificação e criar o token
+      const user = await User.verifyCredentials(email, password)
+      const token = await User.accessTokens.create(user)
 
-    const token = await User.accessTokens.create(user)
-
-    return {
-      message: 'Login realizado com sucesso',
-      user,
-      token,
+      return {
+        message: 'Login realizado com sucesso',
+        user,
+        token,
+      }
+    } catch (error) {
+      // 3. Se as credenciais estiverem erradas, cai aqui e retorna em PT-BR
+      return response.status(400).json({
+        errors: [
+          { message: 'E-mail ou senha inválidos' }
+        ]
+      })
     }
   }
 }

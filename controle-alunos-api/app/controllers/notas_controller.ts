@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Nota from '#models/nota'
+import Estudante from '#models/estudante' 
 import { criarNotaValidator, atualizarNotaValidator } from '#validators/nota'
 
 export default class NotasController {
@@ -21,18 +22,33 @@ export default class NotasController {
    * @tag Notas
    * @requestBody {"valor": 8.5, "estudante_id": 1}
    * @responseBody 201 - {"message": "Nota cadastrada com sucesso", "nota": {}}
+   * @responseBody 404 - {"errors": [{"message": "Estudante não encontrado com o ID fornecido."}]}
    */
-  async store({ request }: HttpContext) {
+  async store({ request, response }: HttpContext) {
     const data = await request.validateUsing(criarNotaValidator)
 
-    const nota = await Nota.create({
-      valor: data.valor,
-      estudanteId: data.estudante_id,
-    })
+    try {
+      // 2. Tenta encontrar o estudante antes de salvar a nota
+      await Estudante.findOrFail(data.estudante_id)
 
-    return {
-      message: 'Nota cadastrada com sucesso',
-      nota,
+      const nota = await Nota.create({
+        valor: data.valor,
+        estudanteId: data.estudante_id,
+      })
+
+      return response.status(201).json({
+        message: 'Nota cadastrada com sucesso',
+        nota,
+      })
+    } catch (error: any) {
+      // Intercepta a falha do findOrFail
+      if (error.code === 'E_ROW_NOT_FOUND') {
+        return response.status(404).json({
+          errors: [{ message: 'Estudante não encontrado com o ID fornecido.' }],
+        })
+      }
+
+      return response.status(500).json({ message: 'Erro interno no servidor' })
     }
   }
 
@@ -66,7 +82,7 @@ export default class NotasController {
    * @paramPath id - ID da nota - @type(number) @required
    * @requestBody {"valor": 9.0, "estudante_id": 1}
    * @responseBody 200 - {"message": "Nota atualizada com sucesso", "nota": {}}
-   * @responseBody 404 - {"error": "Nota não encontrada"}
+   * @responseBody 404 - {"error": "Nota não encontrada ou Estudante não encontrado"}
    */
   async update({ params, request, response }: HttpContext) {
     const nota = await Nota.find(params.id)
@@ -79,16 +95,29 @@ export default class NotasController {
 
     const data = await request.validateUsing(atualizarNotaValidator)
 
-    nota.merge({
-      valor: data.valor,
-      estudanteId: data.estudante_id,
-    })
+    try {
+      // 3. Garante que o NOVO estudante_id também exista no banco
+      await Estudante.findOrFail(data.estudante_id)
 
-    await nota.save()
+      nota.merge({
+        valor: data.valor,
+        estudanteId: data.estudante_id,
+      })
 
-    return {
-      message: 'Nota atualizada com sucesso',
-      nota,
+      await nota.save()
+
+      return {
+        message: 'Nota atualizada com sucesso',
+        nota,
+      }
+    } catch (error: any) {
+      if (error.code === 'E_ROW_NOT_FOUND') {
+        return response.status(404).json({
+          errors: [{ message: 'Estudante não encontrado com o ID fornecido.' }],
+        })
+      }
+
+      return response.status(500).json({ message: 'Erro interno no servidor' })
     }
   }
 

@@ -22,17 +22,21 @@ export default class CursosController {
    * @requestBody {"nome": "Sistemas para Internet", "descricao": "Curso voltado para desenvolvimento web"}
    * @responseBody 201 - {"message": "Curso cadastrado com sucesso", "curso": {}}
    */
-  async store({ request }: HttpContext) {
+  async store({ request, response }: HttpContext) {
     const data = await request.validateUsing(criarCursoValidator)
 
-    const curso = await Curso.create({
-      nome: data.nome,
-      descricao: data.descricao ?? null,
-    } as any)
+    try {
+      const curso = await Curso.create({
+        nome: data.nome,
+        descricao: data.descricao ?? null,
+      } as any)
 
-    return {
-      message: 'Curso cadastrado com sucesso',
-      curso,
+      return response.status(201).json({
+        message: 'Curso cadastrado com sucesso',
+        curso,
+      })
+    } catch (error: any) {
+      return response.status(500).json({ message: 'Erro interno ao cadastrar o curso' })
     }
   }
 
@@ -42,14 +46,14 @@ export default class CursosController {
    * @tag Cursos
    * @paramPath id - ID do curso - @type(number) @required
    * @responseBody 200 - <Curso>
-   * @responseBody 404 - {"error": "Curso não encontrado"}
+   * @responseBody 404 - {"errors": [{"message": "Curso não encontrado"}]}
    */
   async show({ params, response }: HttpContext) {
     const curso = await Curso.find(params.id)
 
     if (!curso) {
       return response.status(404).json({
-        error: 'Curso não encontrado',
+        errors: [{ message: 'Curso não encontrado' }],
       })
     }
 
@@ -63,29 +67,33 @@ export default class CursosController {
    * @paramPath id - ID do curso - @type(number) @required
    * @requestBody {"nome": "Sistemas para Internet", "descricao": "Descrição atualizada"}
    * @responseBody 200 - {"message": "Curso atualizado com sucesso", "curso": {}}
-   * @responseBody 404 - {"error": "Curso não encontrado"}
+   * @responseBody 404 - {"errors": [{"message": "Curso não encontrado"}]}
    */
   async update({ params, request, response }: HttpContext) {
     const curso = await Curso.find(params.id)
 
     if (!curso) {
       return response.status(404).json({
-        error: 'Curso não encontrado',
+        errors: [{ message: 'Curso não encontrado' }],
       })
     }
 
     const data = await request.validateUsing(atualizarCursoValidator)
 
-    curso.merge({
-      nome: data.nome,
-      descricao: data.descricao ?? null,
-    } as any)
+    try {
+      curso.merge({
+        nome: data.nome,
+        descricao: data.descricao ?? null,
+      } as any)
 
-    await curso.save()
+      await curso.save()
 
-    return {
-      message: 'Curso atualizado com sucesso',
-      curso,
+      return {
+        message: 'Curso atualizado com sucesso',
+        curso,
+      }
+    } catch (error: any) {
+      return response.status(500).json({ message: 'Erro interno ao atualizar o curso' })
     }
   }
 
@@ -95,14 +103,14 @@ export default class CursosController {
    * @tag Cursos
    * @paramPath id - ID do curso - @type(number) @required
    * @responseBody 204 - {}
-   * @responseBody 404 - {"error": "Curso não encontrado"}
+   * @responseBody 404 - {"errors": [{"message": "Curso não encontrado"}]}
    */
   async destroy({ params, response }: HttpContext) {
     const curso = await Curso.find(params.id)
 
     if (!curso) {
       return response.status(404).json({
-        error: 'Curso não encontrado',
+        errors: [{ message: 'Curso não encontrado' }],
       })
     }
 
