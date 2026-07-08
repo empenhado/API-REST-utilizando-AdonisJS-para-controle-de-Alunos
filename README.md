@@ -3,21 +3,24 @@
 Esta é uma API REST desenvolvida com o framework **AdonisJS** para o gerenciamento de cursos, alunos e notas. O projeto atende a todos os requisitos acadêmicos solicitados, incluindo persistência em banco de dados relacional, autenticação via middleware e regras de negócio estruturadas.
 
 ---
-# Entidades 
+# Entidades
 
 * Curso
-* Aluno
+* Estudante
 * Nota
 
 # Regras de negócio
-* Cadastrar cursos e alunos.
-* Cada aluno pertence a um curso.
+
+* Cadastrar cursos e estudantes.
+* Cada estudante pertence a um curso.
+* Cada estudante possui uma matrícula única.
 * Registrar notas de 0 a 10.
-* Calcular média do aluno.
-* Listar aprovados e reprovados.
+* Calcular média do estudante.
+* Listar estudantes aprovados e reprovados.
 
 # Relacionamentos
-Curso 1:N Alunos | Aluno 1:N Notas
+
+Curso 1:N Estudantes | Estudante 1:N Notas
 
 # Requisitos obrigatórios
 * Utilizar Migrations.
@@ -34,7 +37,7 @@ Curso 1:N Alunos | Aluno 1:N Notas
 * **Framework:** AdonisJS
 * **ORM:** Lucid ORM (AdonisJS)
 * **Banco de Dados:** PostgreSQL
-* **Autenticação:** Middleware integrado (Opaque Access Tokens / JWT)
+* **Autenticação:** Middleware integrado com Opaque Access Tokens
 * **Documentação:** Swagger UI
 
 ---
@@ -43,13 +46,13 @@ Curso 1:N Alunos | Aluno 1:N Notas
 
 A arquitetura do banco de dados baseia-se em três entidades principais:
 
-1.  **Curso:** Representa as graduações ou disciplinas ofertadas.
-2.  **Aluno:** Vinculado obrigatoriamente a um curso.
-3.  **Nota:** Registros numéricos de avaliações vinculados a um aluno.
+1.  **Curso:** Representa os cursos cadastrados no sistema.
+2.  **Estudante:** Vinculado obrigatoriamente a um curso.
+3.  **Nota:** Registro numérico de uma avaliação vinculada a um estudante
 
 ### Relacionamentos (Lucid ORM):
-* **Curso 1:N Alunos** (`hasMany` / `belongsTo`)
-* **Aluno 1:N Notas** (`hasMany` / `belongsTo`)
+* **Curso 1:N Estudantes** (`hasMany` / `belongsTo`)
+* **Estudante 1:N Notas** (`hasMany` / `belongsTo`)
 
 ---
 
@@ -65,8 +68,8 @@ Antes de iniciar, certifique-se de ter instalado em sua máquina:
 
 ### 1. Clonar o Repositório
 ```bash
-git clone https://github.com/seu-usuario/controle-alunos-api.git
-cd controle-alunos-api
+git clone https://github.com/empenhado/API-REST-utilizando-AdonisJS-para-controle-de-Alunos.git
+cd API-REST-utilizando-AdonisJS-para-controle-de-Alunos/controle-alunos-api
 ```
 
 ### 2. Instalar as Dependências
@@ -81,23 +84,18 @@ cp .env.example .env
 ```
 Abra o arquivo `.env` e configure os campos correspondentes:
 ```env
-DB_CONNECTION=pg
-PG_HOST=localhost
-PG_PORT=5432
-PG_USER=seu_usuario_postgres
-PG_PASSWORD=sua_senha_postgres
-PG_DB_NAME=nome_do_seu_banco
+DB_HOST=127.0.0.1
+DB_PORT=5433
+DB_USER=postgres
+DB_PASSWORD=docker
+DB_DATABASE=controle_alunos
 ```
 
 ### 4. Executar as Migrations e Seeders
-Crie as tabelas necessárias no PostgreSQL e popule os dados iniciais do usuário administrador padrão para testes:
+Com o PostgreSQL em execução, crie as tabelas necessárias:
 ```bash
 node ace migration:run
-node:ace db:seed
 ```
-> **Nota:** O comando de seed cria um usuário padrão para fins de avaliação rápida das rotas autenticadas.
-> * **E-mail:** `admin@ifma.edu.br`
-> * **Senha:** `admin123`
 
 ### 5. Iniciar o Servidor
 ```bash
@@ -114,12 +112,14 @@ Para facilitar os testes e a visualização visual dos endpoints, implementamos 
 Após iniciar o servidor (Passo 5), acesse no seu navegador:
 [http://localhost:3333/docs](http://localhost:3333/docs)
 
+```markdown
 ### Como testar as rotas protegidas pelo Swagger:
-1. Faça o login na rota `POST /login` (pelo próprio Swagger ou via plataforma externa) e copie o token gerado.
-2. No topo da página do Swagger, clique no botão verde **Authorize**.
-3. Cole o seu token no campo de texto e clique em **Authorize**.
-4. Pronto! Agora você pode expandir qualquer rota, clicar em **Try it out** e testar a API diretamente pelo navegador, sem precisar de ferramentas adicionais.
-
+1. Cadastre um usuário na rota `POST /register`.
+2. Faça login na rota `POST /login` e copie o token gerado.
+3. No topo da página do Swagger, clique no botão verde **Authorize**.
+4. Cole somente o valor do token, sem aspas e sem escrever `Bearer`.
+5. Clique em **Authorize**.
+6. Agora você pode expandir qualquer rota, clicar em **Try it out** e testar a API diretamente pelo navegador.
 ---
 
 ## Autenticação
@@ -135,32 +135,54 @@ Authorization: Bearer <SEU_TOKEN_AQUI>
 ## Documentação das Rotas (End-points)
 
 ### Cursos
+
 * `GET /cursos` - Lista todos os cursos cadastrados.
 * `POST /cursos` - Cadastra um novo curso.
+* `GET /cursos/:id` - Exibe os dados de um curso específico.
 * `PUT /cursos/:id` - Atualiza os dados de um curso específico.
 * `DELETE /cursos/:id` - Remove um curso do sistema.
 
-### Alunos
-* `GET /alunos` - Lista todos os alunos (incluindo o curso ao qual pertencem).
-* `POST /alunos` - Cadastra um novo aluno associado a um `curso_id`.
-* `PUT /alunos/:id` - Atualiza as informações do aluno.
-* `DELETE /alunos/:id` - Remove o aluno.
+### Estudantes
 
-### Notas e Relatórios (Regras de Negócio)
-* `POST /notas` - Registra uma nota de `0` a `10` vinculada a um `aluno_id`.
-* `GET /alunos/:id/media` - Calcula e exibe a média aritmética das notas de um aluno específico.
-* `GET /relatorios/desempenho` - Retorna a listagem completa de alunos divididos entre **Aprovados** e **Reprovados**.
-    * *Critério estabelecido:* Média igual ou superior a **7.0** para aprovação.
+* `GET /estudantes` - Lista todos os estudantes, incluindo seus cursos e notas.
+* `POST /estudantes` - Cadastra um novo estudante associado a um `curso_id`.
+* `GET /estudantes/:id` - Exibe os dados de um estudante específico.
+* `PUT /estudantes/:id` - Atualiza as informações do estudante.
+* `DELETE /estudantes/:id` - Remove o estudante.
+
+### Notas
+
+* `GET /notas` - Lista todas as notas cadastradas.
+* `POST /notas` - Registra uma nota de `0` a `10` vinculada a um `estudante_id`.
+* `GET /notas/:id` - Exibe os dados de uma nota específica.
+* `PUT /notas/:id` - Atualiza uma nota.
+* `DELETE /notas/:id` - Remove uma nota.
+
+### Regras de Negócio
+
+* `GET /estudantes/:id/media` - Calcula e exibe a média aritmética das notas de um estudante específico.
+* `GET /estudantes/aprovados` - Lista todos os estudantes aprovados.
+* `GET /estudantes/reprovados` - Lista todos os estudantes reprovados.
+
+  * *Critério estabelecido:* média igual ou superior a **7.0** para aprovação.
 
 ---
 
 ## Estrutura dos Dados de Exemplo (JSON)
 
-### Criar Aluno (`POST /alunos`)
+### Criar Curso (`POST /cursos`)
+```json
+{
+  "nome": "Sistemas para Internet",
+  "descricao": "Curso superior de tecnologia"
+}
+```
+
+### Criar Estudante (`POST /estudantes`)
 ```json
 {
   "nome": "Bruno Vital",
-  "email": "bruno.vital@exemplo.com",
+  "matricula": "2026001",
   "curso_id": 1
 }
 ```
@@ -168,8 +190,8 @@ Authorization: Bearer <SEU_TOKEN_AQUI>
 ### Lançar Nota (`POST /notas`)
 ```json
 {
-  "aluno_id": 1,
-  "nota": 8.5
+  "valor": 8.5,
+  "estudante_id": 1
 }
 ```
 
