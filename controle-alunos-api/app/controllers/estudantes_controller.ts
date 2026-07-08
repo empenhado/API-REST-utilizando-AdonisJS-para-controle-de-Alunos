@@ -91,6 +91,7 @@ export default class EstudantesController {
    * @paramPath id - ID do estudante - @type(number) @required
    * @requestBody {"nome": "Bruno Vital", "matricula": "2024001", "curso_id": 1}
    * @responseBody 200 - {"message": "Estudante atualizado com sucesso", "estudante": {}}
+   * @responseBody 400 - {"errors": [{"message": "Esta matrícula já está sendo usada por outro estudante."}]}
    * @responseBody 404 - {"errors": [{"message": "Estudante ou Curso não encontrado"}]}
    */
   async update({ params, request, response }: HttpContext) {
@@ -104,8 +105,19 @@ export default class EstudantesController {
 
     const data = await request.validateUsing(atualizarEstudanteValidator)
 
+    // NOVA CHECAGEM: Verifica se a matrícula já pertence a outro aluno
+    const matriculaEmUso = await Estudante.query()
+      .where('matricula', data.matricula)
+      .whereNot('id', estudante.id) // Ignora o ID do próprio aluno sendo atualizado
+      .first()
+
+    if (matriculaEmUso) {
+      return response.status(400).json({
+        errors: [{ message: 'Esta matrícula já está sendo usada por outro estudante.' }],
+      })
+    }
+
     try {
-      // Valida se o novo curso existe
       await Curso.findOrFail(data.curso_id)
 
       estudante.merge({
